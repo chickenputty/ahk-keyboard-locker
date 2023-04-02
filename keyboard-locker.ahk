@@ -224,6 +224,10 @@ Hook_Keyboard(nCode, wParam, lParam)
 {
     ;track our position while correctly typing the password
 	static count = 0
+	
+	if (settings.DisablePassword()) {
+		return 1
+	}
 
     ;is this a keyUp event (or keyDown)
     isKeyUp := NumGet(lParam+0, 8, "UInt") & 0x80
