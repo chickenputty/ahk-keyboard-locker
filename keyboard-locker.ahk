@@ -67,6 +67,11 @@ initialize()
 	} else if (!settings.HideTooltips()) {
 		TrayTip,,% "Press " . settings.ShortcutHint() . " to lock your keyboard",10,1
 	}
+	
+	; Initialize unlock UI
+	Gui, UnlockGui:New, +AlwaysOnTop -Resize -MaximizeBox -MinimizeBox +ToolWindow, % "AHK Keyboard Locker"
+	Gui, Add, Button, Default w80 gButtonUnlock , Unlock
+	Gui, Show, % "AutoSize xCenter y" . (A_ScreenHeight - 125)
 }
 
 ;callback for when the keyboard shortcut is pressed
@@ -90,6 +95,10 @@ ShortcutTriggered:
     }
 
 	LockKeyboard(true)
+return
+
+ButtonUnlock:
+	LockKeyboard(false)
 return
 
 HandleUnlockMessage(wParam, lParam, uMsg, hwnd)
