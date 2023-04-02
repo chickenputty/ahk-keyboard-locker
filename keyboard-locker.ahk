@@ -1,8 +1,33 @@
 #Persistent
-#SingleInstance Ignore
+#SingleInstance Off
 
 #Include Ini.ahk
 #Include Settings.ahk
+
+DetectHiddenWindows, On
+; Get main window title
+WinGetTitle, title, % "ahk_id" . A_ScriptHwnd
+if(title = "")
+{
+	MsgBox, Couldn't find main window title
+	return
+}
+
+; Check if there's more than 1 instance of this script running
+WinGet, WinCount, Count, %title%
+if (WinCount > 1)
+{
+	; Send unlock request to all
+	WinGet, id, List, %title%
+	Loop, %id%
+	{
+		hWnd := id%A_Index%
+        SendMessage, 0x8001,,,, % "ahk_id" . hwnd ; WM_APP + 1
+	}
+	ExitApp
+	return
+}
+DetectHiddenWindows, Off
 
 FileInstall, unlocked.ico, unlocked.ico, 0
 FileInstall, locked.ico, locked.ico, 0
@@ -23,6 +48,8 @@ return
 
 initialize()
 {
+	; Initialize unlock message handler
+	OnMessage(0x8001, Func("HandleUnlockMessage")) ; WM_APP + 1
 	;initialize the tray icon and menu
 	Menu, Tray, Icon, %A_ScriptDir%\unlocked.ico
 	Menu, Tray, NoStandard
@@ -64,6 +91,12 @@ ShortcutTriggered:
 
 	LockKeyboard(true)
 return
+
+HandleUnlockMessage(wParam, lParam, uMsg, hwnd)
+{
+	LockKeyboard(false)
+	return 0 
+}
 
 
 ;"Lock/Unlock keyboard" menu clicked
