@@ -222,6 +222,9 @@ LockKeyboard(lock)
 ;Catch and discard keypresses when the keyboard is locked, and monitor for password inputs
 Hook_Keyboard(nCode, wParam, lParam)
 {
+	; Prevent the current thread from being interrupted 
+	Critical, On
+	
     ;track our position while correctly typing the password
 	static count = 0
 	
