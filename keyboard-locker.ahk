@@ -37,17 +37,17 @@ settings := new Settings()
 ;(DO NOT CHANGE) tracks whether or not the keyboard is currently locked
 locked := false
 
+;create the tray icon and do initial setup
+initialize()
+
 ; Read previous lock status from file
 lockStatusFile := A_ScriptDir "\lockStatus.txt"
 if (FileExist(lockStatusFile)) {
     FileRead, lockStatus, %lockStatusFile%
     if (lockStatus = "locked") {
-        locked := true
+        LockKeyboard(true)
     }
 }
-
-;create the tray icon and do initial setup
-initialize()
 
 ;set up the keyboard shortcut to lock the keyboard
 Hotkey, % settings.Shortcut(), ShortcutTriggered
@@ -275,22 +275,11 @@ Hook_Keyboard(nCode, wParam, lParam)
             }
         } else {
             count := 0
+            ShowToolTip("Locked! Type """ . settings.Password() . """ to unlock.", 1000)
         }
     }
 
-    ; Show tooltip if the keyboard is locked
-    if (locked && !isKeyUp) {
-        ToolTip, Keyboard disabled
-        SetTimer, RemoveToolTip, -1000
-    }
-
     return 1
-}
-
-;Remove tooltip after a delay
-RemoveToolTip()
-{
-    ToolTip
 }
 
 ;Determine if this character requires shift to be pressed (capital letter or symbol)
@@ -353,4 +342,10 @@ ShowToolTip(text, duration)
 {
     ToolTip, %text%
     SetTimer, RemoveToolTip, -%duration%
+}
+
+;Remove tooltip after a delay
+RemoveToolTip()
+{
+    ToolTip
 }
